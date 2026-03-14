@@ -5,6 +5,9 @@ import {
   Monitor, Smartphone, Coffee, Smile,
 } from 'lucide-react'
 import CircularProgress from '../components/CircularProgress'
+import InsightsPanel from '../components/InsightsPanel'
+import SuggestionsPanel from '../components/SuggestionsPanel'
+import ScoreBreakdownChart from '../components/ScoreBreakdownChart'
 
 const API_URL = 'http://localhost:8000'
 
@@ -62,8 +65,8 @@ export default function DashboardPage() {
         transition={{ duration: 0.45 }}
         style={{ marginBottom: 32 }}
       >
-        <h1 style={{ fontSize: 28, fontWeight: 700, color: 'white', margin: 0 }}>Dashboard</h1>
-        <p style={{ color: '#94a3b8', marginTop: 8, fontSize: 14, lineHeight: 1.5 }}>
+        <h1 style={{ fontSize: 28, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Dashboard</h1>
+        <p style={{ color: 'var(--text-muted)', marginTop: 8, fontSize: 14, lineHeight: 1.5 }}>
           Enter your daily routine metrics to predict your productivity score.
         </p>
       </motion.div>
@@ -87,7 +90,7 @@ export default function DashboardPage() {
             className="glass-card"
             style={{ padding: '20px 20px 18px', display: 'flex', flexDirection: 'column', gap: 14 }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#94a3b8' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-muted)' }}>
               <Icon size={15} />
               <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 {label}
@@ -113,17 +116,18 @@ export default function DashboardPage() {
                 onChange={e => handleChange(key, e.target.value)}
                 style={{
                   width: 70,
-                  background: '#1e293b',
-                  border: '1px solid #334155',
+                  background: 'var(--input-bg)',
+                  border: '1px solid var(--input-border)',
                   borderRadius: 8,
                   padding: '6px 0',
                   fontSize: 14,
-                  color: 'white',
+                  color: 'var(--text-primary)',
                   textAlign: 'center',
                   outline: 'none',
+                  transition: 'background 0.3s, border-color 0.3s, color 0.3s',
                 }}
               />
-              <span style={{ fontSize: 10, color: '#64748b' }}>{min} – {max}</span>
+              <span style={{ fontSize: 10, color: 'var(--text-subtle)' }}>{min} – {max}</span>
             </div>
           </motion.div>
         ))}
@@ -140,15 +144,9 @@ export default function DashboardPage() {
           onClick={handlePredict}
           disabled={loading}
           style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            padding: '13px 36px',
-            borderRadius: 12,
-            fontWeight: 600,
-            fontSize: 15,
-            color: 'white',
-            border: 'none',
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            padding: '13px 36px', borderRadius: 12, fontWeight: 600, fontSize: 15,
+            color: 'white', border: 'none',
             cursor: loading ? 'not-allowed' : 'pointer',
             opacity: loading ? 0.6 : 1,
             background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
@@ -167,62 +165,71 @@ export default function DashboardPage() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           className="glass-card"
-          style={{
-            padding: 14,
-            borderColor: 'rgba(239,68,68,0.3)',
-            color: '#f87171',
-            fontSize: 13,
-            textAlign: 'center',
-            marginBottom: 32,
-          }}
+          style={{ padding: 14, borderColor: 'rgba(239,68,68,0.3)', color: '#f87171', fontSize: 13, textAlign: 'center', marginBottom: 32 }}
         >
           ⚠ {error} — Is the backend running on port 8000?
         </motion.div>
       )}
 
-      {/* ── Result ── */}
+      {/* ── Results Section ── */}
       <AnimatePresence>
         {result && (
           <motion.div
-            key="result"
-            initial={{ opacity: 0, y: 28, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -16, scale: 0.96 }}
-            transition={{ duration: 0.5, type: 'spring', stiffness: 200 }}
-            className="glass-card glow"
-            style={{ padding: '36px 32px' }}
+            key="all-results"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{ display: 'flex', flexDirection: 'column', gap: 24 }}
           >
-            <h2 style={{ fontSize: 18, fontWeight: 600, color: 'white', textAlign: 'center', margin: '0 0 28px 0' }}>
-              Prediction Result
-            </h2>
+            {/* Score + Summary */}
+            <motion.div
+              initial={{ opacity: 0, y: 28, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.5, type: 'spring', stiffness: 200 }}
+              className="glass-card glow"
+              style={{ padding: '36px 32px' }}
+            >
+              <h2 style={{ fontSize: 18, fontWeight: 600, color: 'var(--text-primary)', textAlign: 'center', margin: '0 0 28px 0' }}>
+                Prediction Result
+              </h2>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 48 }}>
-              <CircularProgress value={result.productivity_score} label={result.category} />
+              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 48 }}>
+                <CircularProgress value={result.productivity_score} label={result.category} />
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, maxWidth: 280 }}>
-                {[
-                  { label: 'Score',    value: result.productivity_score, suffix: '/100' },
-                  { label: 'Category', value: result.category },
-                  { label: 'Sleep',    value: `${formData.sleep_hours}h` },
-                  { label: 'Study',    value: `${formData.study_hours}h` },
-                ].map((item, i) => (
-                  <motion.div
-                    key={item.label}
-                    initial={{ opacity: 0, x: 16 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 + i * 0.1 }}
-                    style={{ background: '#131b2e', borderRadius: 10, padding: '14px 16px' }}
-                  >
-                    <p style={{ fontSize: 10, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
-                      {item.label}
-                    </p>
-                    <p style={{ fontSize: 20, fontWeight: 700, color: 'white', marginTop: 4 }}>
-                      {item.value}{item.suffix || ''}
-                    </p>
-                  </motion.div>
-                ))}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, maxWidth: 280 }}>
+                  {[
+                    { label: 'Score',    value: result.productivity_score, suffix: '/100' },
+                    { label: 'Category', value: result.category },
+                    { label: 'Sleep',    value: `${formData.sleep_hours}h` },
+                    { label: 'Study',    value: `${formData.study_hours}h` },
+                  ].map((item, i) => (
+                    <motion.div
+                      key={item.label}
+                      initial={{ opacity: 0, x: 16 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.3 + i * 0.1 }}
+                      style={{ background: 'var(--input-bg)', borderRadius: 10, padding: '14px 16px', transition: 'background 0.3s' }}
+                    >
+                      <p style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
+                        {item.label}
+                      </p>
+                      <p style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', marginTop: 4 }}>
+                        {item.value}{item.suffix || ''}
+                      </p>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
-            </div>
+            </motion.div>
+
+            {/* Score Breakdown */}
+            <ScoreBreakdownChart breakdown={result.score_breakdown} />
+
+            {/* AI Insights */}
+            <InsightsPanel insights={result.insights} />
+
+            {/* Suggestions */}
+            <SuggestionsPanel suggestions={result.suggestions} />
           </motion.div>
         )}
       </AnimatePresence>

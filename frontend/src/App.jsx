@@ -1,40 +1,39 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X } from 'lucide-react'
+import { Menu } from 'lucide-react'
 import Sidebar from './components/Sidebar'
+import ThemeToggle from './components/ThemeToggle'
 import DashboardPage from './pages/DashboardPage'
 import AnalysisPage from './pages/AnalysisPage'
 import AboutPage from './pages/AboutPage'
 
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark')
+
+  // Apply theme to <html>
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('theme', theme)
+  }, [theme])
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#080d1c' }}>
-      {/* Sidebar overlay for mobile / closed state */}
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)', transition: 'background 0.35s' }}>
+      {/* Animated Sidebar */}
       <AnimatePresence>
         {sidebarOpen && (
           <>
-            {/* Animated sidebar */}
             <motion.div
               initial={{ x: -280 }}
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              style={{
-                position: 'fixed',
-                left: 0,
-                top: 0,
-                height: '100vh',
-                width: 260,
-                zIndex: 50,
-              }}
+              style={{ position: 'fixed', left: 0, top: 0, height: '100vh', width: 260, zIndex: 50 }}
             >
               <Sidebar onClose={() => setSidebarOpen(false)} />
             </motion.div>
 
-            {/* Backdrop on smaller screens */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -42,12 +41,7 @@ export default function App() {
               transition={{ duration: 0.2 }}
               onClick={() => setSidebarOpen(false)}
               className="lg:hidden"
-              style={{
-                position: 'fixed',
-                inset: 0,
-                background: 'rgba(0,0,0,0.5)',
-                zIndex: 40,
-              }}
+              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 40 }}
             />
           </>
         )}
@@ -60,32 +54,28 @@ export default function App() {
           width: sidebarOpen ? 'calc(100% - 260px)' : '100%',
           minHeight: '100vh',
           transition: 'margin-left 0.35s cubic-bezier(0.4,0,0.2,1), width 0.35s cubic-bezier(0.4,0,0.2,1)',
-          padding: '32px 40px 40px 40px',
+          padding: '24px 40px 40px 40px',
         }}
       >
-        {/* Top bar with toggle */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            style={{
-              width: 38,
-              height: 38,
-              borderRadius: 10,
-              background: '#0f1629',
-              border: '1px solid #1e293b',
-              color: '#94a3b8',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              flexShrink: 0,
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = '#1e293b'; e.currentTarget.style.color = 'white' }}
-            onMouseLeave={e => { e.currentTarget.style.background = '#0f1629'; e.currentTarget.style.color = '#94a3b8' }}
-          >
-            {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
-          </button>
+        {/* Top bar */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28 }}>
+          {!sidebarOpen && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              onClick={() => setSidebarOpen(true)}
+              style={{
+                width: 40, height: 40, borderRadius: 10,
+                background: 'var(--card-bg)', border: '1px solid var(--card-border)',
+                color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', transition: 'all 0.2s', flexShrink: 0,
+              }}
+            >
+              <Menu size={18} />
+            </motion.button>
+          )}
+          <div style={{ flex: 1 }} />
+          <ThemeToggle theme={theme} setTheme={setTheme} />
         </div>
 
         <Routes>

@@ -1,17 +1,40 @@
 @import "tailwindcss";
 
-/* ===== CSS Variables (ShadCN-compatible dark theme) ===== */
-:root {
-  --background: #080d1c;
-  --foreground: #f0f4fa;
-  --card: #0f1629;
+/* ===== Dark Theme (default) ===== */
+:root,
+[data-theme="dark"] {
+  --bg: #080d1c;
+  --card-bg: #0f1629;
   --card-border: #1e293b;
-  --muted: #94a3b8;
+  --text-primary: #f0f4fa;
+  --text-muted: #94a3b8;
+  --text-subtle: #64748b;
   --primary: #3b82f6;
+  --accent: #8b5cf6;
+  --input-bg: #1e293b;
+  --input-border: #334155;
+  --insight-row-bg: rgba(250, 204, 21, 0.04);
+  --suggestion-row-bg: rgba(34, 197, 94, 0.04);
   --radius: 0.75rem;
 }
 
-/* ===== Base Styles ===== */
+/* ===== Light Theme ===== */
+[data-theme="light"] {
+  --bg: #f1f5f9;
+  --card-bg: #ffffff;
+  --card-border: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-muted: #475569;
+  --text-subtle: #94a3b8;
+  --primary: #2563eb;
+  --accent: #7c3aed;
+  --input-bg: #f8fafc;
+  --input-border: #cbd5e1;
+  --insight-row-bg: rgba(250, 204, 21, 0.08);
+  --suggestion-row-bg: rgba(34, 197, 94, 0.06);
+}
+
+/* ===== Base ===== */
 *,
 *::before,
 *::after {
@@ -26,37 +49,49 @@ html {
 
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg);
+  color: var(--text-primary);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  transition: background 0.35s, color 0.35s;
 }
 
 /* ===== Scrollbar ===== */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: var(--background);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--card-border);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--muted);
-}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
 /* ===== Glass Card ===== */
 .glass-card {
-  background: var(--card);
+  background: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: var(--radius);
+  transition: background 0.35s, border-color 0.35s;
 }
-
 .glass-card:hover {
   border-color: rgba(59, 130, 246, 0.25);
+}
+
+/* ===== Insight / Suggestion Rows ===== */
+.insight-row {
+  background: var(--insight-row-bg);
+  border-radius: 10px;
+}
+.suggestion-row {
+  background: var(--suggestion-row-bg);
+  border-radius: 10px;
+}
+
+/* ===== Typography helpers ===== */
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.body-text {
+  font-size: 13px;
+  color: var(--text-muted);
 }
 
 /* ===== Gradient Text ===== */
@@ -73,39 +108,38 @@ body {
               0 0 60px rgba(59, 130, 246, 0.04);
 }
 
-/* ===== Slider Track (cross-browser) ===== */
+/* ===== Slider ===== */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
   height: 6px;
   border-radius: 3px;
-  background: #1e293b;
+  background: var(--input-bg);
   outline: none;
   cursor: pointer;
   border: none;
+  transition: background 0.3s;
 }
-
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #3b82f6;
-  box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+  background: var(--primary);
+  box-shadow: 0 0 8px rgba(59,130,246,0.5);
   cursor: pointer;
-  border: 2px solid #1e293b;
+  border: 2px solid var(--card-border);
 }
-
 input[type="range"]::-moz-range-thumb {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #3b82f6;
-  box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+  background: var(--primary);
+  box-shadow: 0 0 8px rgba(59,130,246,0.5);
   cursor: pointer;
-  border: 2px solid #1e293b;
+  border: 2px solid var(--card-border);
 }
 
 /* ===== Number Input ===== */
