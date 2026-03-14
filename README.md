@@ -1,16 +1,21 @@
 # 🧠 AI Personal Productivity Analyzer
 
-A modern full-stack machine learning web application that predicts your **Productivity Score (0–100)** based on daily routine inputs and presents results inside a sleek analytics dashboard with smooth UI animations.
+A modern full-stack machine learning web application that predicts your **Productivity Score (0–100)** based on daily routine inputs and presents results inside a sleek analytics dashboard with smooth UI animations, AI-powered insights, and actionable recommendations.
 
 ---
 
 ## ✨ Features
 
 - **ML-Powered Predictions** — Enter daily routine metrics and get an instant productivity score
+- **AI Insights Generator** — Automatic rule-based insights explaining what's boosting or hurting your productivity
+- **Improvement Suggestions** — Actionable recommendations to optimize your daily routine
+- **Score Breakdown Chart** — Donut chart visualizing the contribution of each factor (sleep, study, exercise, etc.)
+- **Dark / Light Mode** — Smooth theme toggle with preference saved in localStorage
 - **Animated Dashboard** — Clean, modern SaaS-style UI with Framer Motion animations
 - **Interactive Charts** — Per-metric Recharts visualisations (bar, radial, donut)
 - **Circular Progress Meter** — Animated score display with colour-coded categories
-- **REST API** — FastAPI backend serving predictions from a trained scikit-learn model
+- **Collapsible Sidebar** — Spring-animated sidebar with smooth open/close transitions
+- **REST API** — FastAPI backend serving predictions, insights, and suggestions
 - **50K Synthetic Dataset** — Realistic correlations between lifestyle habits and productivity
 
 ---
@@ -18,14 +23,17 @@ A modern full-stack machine learning web application that predicts your **Produc
 ## 🏗️ Architecture
 
 ```
-┌─────────────────┐          ┌─────────────────┐
-│                 │  POST    │                 │
-│   React (Vite)  │─────────▶│   FastAPI        │
-│   Dashboard UI  │◀─────────│   /predict       │
-│                 │  JSON    │                 │
-└─────────────────┘          └───────┬─────────┘
-                                     │
-                              ┌──────▼──────┐
+┌─────────────────┐          ┌─────────────────────────┐
+│                 │  POST    │                         │
+│   React (Vite)  │─────────▶│   FastAPI                │
+│   Dashboard UI  │◀─────────│   /predict               │
+│                 │  JSON    │   → score, insights,     │
+│   • Score Card  │          │     suggestions,         │
+│   • Breakdown   │          │     breakdown            │
+│   • Insights    │          │                         │
+│   • Suggestions │          └───────┬─────────────────┘
+│   • Theme Toggle│                  │
+└─────────────────┘           ┌──────▼──────┐
                               │  ML Model   │
                               │  (pkl file) │
                               └─────────────┘
@@ -54,6 +62,36 @@ A modern full-stack machine learning web application that predicts your **Produc
 
 ---
 
+## 🧩 API Response Format
+
+After prediction, the `/predict` endpoint returns:
+
+```json
+{
+  "productivity_score": 56,
+  "category": "Moderate Productivity",
+  "insights": [
+    "Good sleep is positively influencing your productivity.",
+    "Solid study hours are supporting a good productivity level.",
+    "Moderate exercise is providing a healthy productivity boost."
+  ],
+  "suggestions": [
+    "Reducing screen time by 3h could improve focus.",
+    "Reduce social media usage by 2.5h for better concentration."
+  ],
+  "score_breakdown": {
+    "sleep": 19,
+    "study": 14,
+    "exercise": 5,
+    "screen_time": -3,
+    "social_media": -2,
+    "mood": 14
+  }
+}
+```
+
+---
+
 ## 🚀 How to Run
 
 ### Backend
@@ -69,7 +107,7 @@ python dataset/generate_dataset.py
 python model_training.py
 
 # Start API server
-uvicorn main:app --reload
+uvicorn main:app --reload --port 8000
 ```
 
 Backend runs on **http://localhost:8000**
@@ -89,9 +127,9 @@ Frontend runs on **http://localhost:5173**
 ## 📁 Project Structure
 
 ```
-AI_Productivity_Analyzer/
+ProductivAI/
 ├── backend/
-│   ├── main.py                  # FastAPI application
+│   ├── main.py                  # FastAPI app (predict, insights, suggestions, breakdown)
 │   ├── model_training.py        # ML training pipeline
 │   ├── requirements.txt         # Python dependencies
 │   ├── dataset/
@@ -105,19 +143,46 @@ AI_Productivity_Analyzer/
 │   ├── vite.config.js
 │   └── src/
 │       ├── main.jsx
-│       ├── App.jsx
-│       ├── index.css
+│       ├── App.jsx              # Layout, sidebar toggle, theme provider
+│       ├── index.css            # Dark/light theme CSS variables
 │       ├── lib/
 │       │   └── utils.js
 │       ├── components/
-│       │   ├── Sidebar.jsx
-│       │   └── CircularProgress.jsx
+│       │   ├── Sidebar.jsx            # Collapsible sidebar with spring animation
+│       │   ├── CircularProgress.jsx   # Animated score ring
+│       │   ├── ThemeToggle.jsx        # Dark/light mode switcher
+│       │   ├── InsightsPanel.jsx      # AI insights display
+│       │   ├── SuggestionsPanel.jsx   # Improvement suggestions grid
+│       │   └── ScoreBreakdownChart.jsx # Recharts donut chart
 │       └── pages/
-│           ├── DashboardPage.jsx
-│           ├── AnalysisPage.jsx
-│           └── AboutPage.jsx
+│           ├── DashboardPage.jsx  # Input cards + all result panels
+│           ├── AnalysisPage.jsx   # Per-metric chart visualizations
+│           └── AboutPage.jsx      # Project info and tech stack
+├── .gitignore
 └── README.md
 ```
+
+---
+
+## 📸 Screenshots
+
+### Dashboard (Dark Mode)
+Input cards with sliders, predict button, and full result panels below.
+
+### Prediction Result
+Circular progress meter showing score with category label and summary cards.
+
+### Score Breakdown
+Donut chart showing factor contributions: Sleep +19%, Study +14%, Exercise +5%, Screen Time -3%, Social Media -2%, Mood +14%.
+
+### AI Insights
+Contextual insights with emoji icons explaining what affects your productivity.
+
+### Suggestions
+Actionable improvement tips displayed in a card grid with green arrow icons.
+
+### Light Mode
+Clean white theme with full component compatibility.
 
 ---
 
@@ -126,7 +191,6 @@ AI_Productivity_Analyzer/
 - User authentication and history tracking
 - Multiple ML model comparison in the dashboard
 - Time-series productivity tracking
-- Personalised recommendations engine
 - Export reports as PDF
 - Mobile-responsive design enhancements
 - Deploy to cloud (Vercel + Railway / Render)
